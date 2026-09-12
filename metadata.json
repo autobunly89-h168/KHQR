@@ -1,0 +1,10 @@
+{
+  "name": "KHQR Bank Scanner",
+  "description": "កម្មវិធីស្កេន KHQR ធនាគារកម្ពុជា ពិនិត្យឈ្មោះម្ចាស់គណនី លេខគណនី ធនាគារ និងចំនួនទឹកប្រាក់ ងាយស្រួល ច្បាស់លាស់ និងសុវត្ថិភាពខ្ពស់",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
