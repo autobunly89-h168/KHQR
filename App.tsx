@@ -12,6 +12,8 @@ import { QrBankingScanner } from './components/QrBankingScanner';
 import { ScanResultCard } from './components/ScanResultCard';
 import { CameraScannerModal } from './components/CameraScannerModal';
 import { ScanHistoryModal } from './components/ScanHistoryModal';
+import { AdBanner } from './components/AdBanner';
+import { AdConfigModal } from './components/AdConfigModal';
 import { useLanguage } from './context/LanguageContext';
 
 export default function App() {
@@ -21,6 +23,7 @@ export default function App() {
   const [history, setHistory] = useState<KhqrParseResult[]>([]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isAdConfigOpen, setIsAdConfigOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Load history from localStorage on initial render
@@ -195,6 +198,12 @@ export default function App() {
           />
         </div>
 
+        {/* Google AdSense / Sponsor Banner */}
+        <AdBanner
+          slotType="leaderboard"
+          onOpenSettings={() => setIsAdConfigOpen(true)}
+        />
+
         {/* Feature & Privacy Assurance */}
         <div className="rounded-2xl bg-black/20 border border-white/10 p-5 space-y-3">
           <div className="flex items-center gap-2 text-white font-bold text-sm">
@@ -235,6 +244,12 @@ export default function App() {
             >
               {t.footerScanCamera}
             </button>
+            <button
+              onClick={() => setIsAdConfigOpen(true)}
+              className="hover:text-white transition underline underline-offset-2 text-amber-300/80 hover:text-amber-200"
+            >
+              Google AdSense
+            </button>
           </div>
         </div>
       </footer>
@@ -255,6 +270,11 @@ export default function App() {
           setActiveNumber(item.accountNumber);
         }}
         onClearHistory={handleClearHistory}
+      />
+
+      <AdConfigModal
+        isOpen={isAdConfigOpen}
+        onClose={() => setIsAdConfigOpen(false)}
       />
     </div>
   );

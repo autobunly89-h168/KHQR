@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, CheckCircle, HelpCircle, DollarSign, Globe, ExternalLink, Shield } from 'lucide-react';
+import { X, Save, CheckCircle, HelpCircle, DollarSign, Globe, Shield, Check } from 'lucide-react';
 import { AdConfig, DEFAULT_AD_CONFIG } from './AdBanner';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AdConfigModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface AdConfigModalProps {
 }
 
 export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose }) => {
+  const { lang } = useLanguage();
   const [config, setConfig] = useState<AdConfig>(DEFAULT_AD_CONFIG);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -15,7 +17,13 @@ export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose })
     try {
       const saved = localStorage.getItem('khqr_ad_config');
       if (saved) {
-        setConfig(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (!parsed.publisherId) {
+          parsed.publisherId = DEFAULT_AD_CONFIG.publisherId;
+        }
+        setConfig(parsed);
+      } else {
+        setConfig(DEFAULT_AD_CONFIG);
       }
     } catch {
       // ignore
@@ -32,11 +40,11 @@ export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose })
       setIsSaved(false);
       onClose();
       window.location.reload();
-    }, 800);
+    }, 600);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl p-6 text-slate-100 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -46,10 +54,12 @@ export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose })
             </div>
             <div>
               <h3 className="text-base font-bold text-white">
-                កំណត់ពាណិជ្ជកម្ម AdSense & Affiliate
+                {lang === 'km' ? 'កំណត់ពាណិជ្ជកម្ម Google AdSense' : 'Google AdSense Settings'}
               </h3>
               <p className="text-xs text-slate-400">
-                រកចំណូលពីគេហទំព័រស្កេន KHQR តាមរយៈ Google Ads & តំណភ្ជាប់ដៃគូ
+                {lang === 'km'
+                  ? 'គ្រប់គ្រងកូដ AdSense Publisher ID និង Ad Slots'
+                  : 'Manage AdSense Publisher ID and Ad Slots'}
               </p>
             </div>
           </div>
@@ -63,14 +73,26 @@ export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose })
 
         {/* Form */}
         <form onSubmit={handleSave} className="mt-5 space-y-4 text-xs">
+          {/* Status info */}
+          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center gap-2 text-emerald-300">
+            <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="text-[11px] font-medium leading-tight">
+              {lang === 'km'
+                ? 'កូដស្គ្រីប Google AdSense (ca-pub-2027566119468197) ត្រូវបានបញ្ចូលក្នុងគេហទំព័ររួចរាល់'
+                : 'Google AdSense script (ca-pub-2027566119468197) is connected in site header'}
+            </span>
+          </div>
+
           {/* AdSense Toggle */}
           <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-between">
             <div>
               <span className="font-bold text-white block text-sm">
-                បើកដំណើរការ Google AdSense
+                {lang === 'km' ? 'បើកដំណើរការ Google AdSense' : 'Enable Google AdSense'}
               </span>
               <span className="text-slate-400 text-[11px]">
-                បង្ហាញផ្ទាំងពាណិជ្ជកម្មពិតប្រាកដរបស់ Google
+                {lang === 'km'
+                  ? 'បង្ហាញផ្ទាំងពាណិជ្ជកម្មពិតប្រាកដរបស់ Google'
+                  : 'Display real Google Ads on page'}
               </span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -89,13 +111,13 @@ export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose })
             <div className="space-y-3 p-3.5 rounded-xl bg-slate-800/40 border border-slate-700/60">
               <div>
                 <label className="block font-medium text-slate-300 mb-1">
-                  Google AdSense Publisher ID (ca-pub-XXXXX):
+                  {lang === 'km' ? 'Google AdSense Publisher ID:' : 'Google AdSense Publisher ID:'}
                 </label>
                 <input
                   type="text"
                   value={config.publisherId}
                   onChange={(e) => setConfig({ ...config, publisherId: e.target.value.trim() })}
-                  placeholder="ca-pub-1234567890123456"
+                  placeholder="ca-pub-2027566119468197"
                   className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:border-purple-500 focus:outline-none font-mono text-xs text-white"
                 />
               </div>
@@ -103,25 +125,25 @@ export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose })
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block font-medium text-slate-300 mb-1">
-                    Slot ID - Leaderboard (កំពូល):
+                    {lang === 'km' ? 'Slot ID - Leaderboard (ជួរលើ/ក្រោម):' : 'Slot ID - Leaderboard:'}
                   </label>
                   <input
                     type="text"
                     value={config.slotLeaderboard}
                     onChange={(e) => setConfig({ ...config, slotLeaderboard: e.target.value.trim() })}
-                    placeholder="ឧ. 1234567890"
+                    placeholder={lang === 'km' ? 'ឧ. 1234567890 (ទុកទទេបើ Auto)' : 'e.g. 1234567890 (or blank)'}
                     className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:border-purple-500 focus:outline-none font-mono text-xs text-white"
                   />
                 </div>
                 <div>
                   <label className="block font-medium text-slate-300 mb-1">
-                    Slot ID - Rectangle (ចំហៀង):
+                    {lang === 'km' ? 'Slot ID - Infeed / Sidebar:' : 'Slot ID - Infeed:'}
                   </label>
                   <input
                     type="text"
                     value={config.slotRectangle}
                     onChange={(e) => setConfig({ ...config, slotRectangle: e.target.value.trim() })}
-                    placeholder="ឧ. 9876543210"
+                    placeholder={lang === 'km' ? 'ឧ. 9876543210 (ទុកទទេបើ Auto)' : 'e.g. 9876543210'}
                     className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 focus:border-purple-500 focus:outline-none font-mono text-xs text-white"
                   />
                 </div>
@@ -130,26 +152,13 @@ export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose })
               <div className="text-[11px] text-slate-400 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800 flex items-start gap-2">
                 <HelpCircle className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
                 <p>
-                  ចំណាំ៖ ដើម្បីឲ្យ AdSense បង្ហាញ សូមប្រាកដថាគេហទំព័ររបស់អ្នកត្រូវបាន Approved ដោយ Google AdSense ហើយដាក់កូដ script ចូលក្នុង Header ។
+                  {lang === 'km'
+                    ? 'ចំណាំ៖ ប្រសិនបើអ្នកមិនទាន់បង្កើត Ad Slot ID ជាក់លាក់ទេ Google AdSense នឹងប្រើប្រាស់មុខងារ Auto Ads & Responsive Ads ដោយស្វ័យប្រវត្តិតាមរយៈ Publisher ID របស់អ្នក។'
+                    : 'Note: If you haven\'t created a specific Ad Slot ID yet, Google AdSense will use Auto Ads and Responsive display units via your Publisher ID.'}
                 </p>
               </div>
             </div>
           )}
-
-          {/* Affiliate links info */}
-          <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/30 space-y-2">
-            <div className="flex items-center gap-2 text-purple-300 font-bold text-xs">
-              <Globe className="w-4 h-4" />
-              <span>ដៃគូពាណិជ្ជកម្ម & Affiliate (Partnership)</span>
-            </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              នៅពេល AdSense មិនទាន់បានបើក ប្រព័ន្ធនឹងបង្ហាញផ្ទាំងផ្សព្វផ្សាយដៃគូ (Affiliate Cards) ដូចជា ជើងទម្រស្កេន KHQR, ម៉ាស៊ីន POS, និងសេវាកម្មធនាគារ ដោយស្វ័យប្រវត្តិ។
-            </p>
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-              <Shield className="w-3 h-3 text-emerald-400" />
-              <span>ជួយបង្កើនប្រាក់ចំណូលតាមរយៈ Commission ពីការចុច និងទិញទំនិញ</span>
-            </div>
-          </div>
 
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
@@ -158,7 +167,7 @@ export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose })
               onClick={onClose}
               className="px-4 py-2 rounded-xl text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 transition"
             >
-              បោះបង់
+              {lang === 'km' ? 'បោះបង់' : 'Cancel'}
             </button>
             <button
               type="submit"
@@ -167,12 +176,12 @@ export const AdConfigModal: React.FC<AdConfigModalProps> = ({ isOpen, onClose })
               {isSaved ? (
                 <>
                   <CheckCircle className="w-4 h-4 text-emerald-300" />
-                  <span>បានរក្សាទុក!</span>
+                  <span>{lang === 'km' ? 'បានរក្សាទុក!' : 'Saved!'}</span>
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  <span>រក្សាទុកការកំណត់</span>
+                  <span>{lang === 'km' ? 'រក្សាទុកការកំណត់' : 'Save Settings'}</span>
                 </>
               )}
             </button>
